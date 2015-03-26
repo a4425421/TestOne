@@ -11,9 +11,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.ImageRequest;
+import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.Volley;
 
 public class MainActivity extends ActionBarActivity {
@@ -25,7 +23,12 @@ public class MainActivity extends ActionBarActivity {
         setContentView(R.layout.activity_main);
 
         Button btn = (Button) findViewById(R.id.main_button);
-        final ImageView iv_main =(ImageView)findViewById(R.id.iv_main);
+        final ImageView iv_main = (ImageView) findViewById(R.id.iv_main);
+
+        int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
+        Log.d("TAG", "Max memory is " + maxMemory + "KB");
+
+
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -35,33 +38,66 @@ public class MainActivity extends ActionBarActivity {
 
 
 
-                /*第一个参数就是图片的URL地址，
-                第二个参数是图片请求成功的回调，这里我们把返回的Bitmap参数设置到ImageView中。
-                第三第四个参数分别用于指定允许图片最大的宽度和高度，如果指定的网络图片的宽度或高度大于这里的最大值，
-                    则会对图片进行压缩，指定成0的话就表示不管图片有多大，都不会进行压缩。
-                第五个参数用于指定图片的颜色属性，Bitmap.Config下的几个常量都可以在这里使用，
-                    其中ARGB_8888可以展示最好的颜色属性，每个图片像素占据4个字节的大小，而RGB_565则表示每个图片像素占据2个字节大小。
-                第六个参数是图片请求失败的回调，这里我们当请求失败时在ImageView中显示一张默认图片。
+                /*
+                *
 
+                1. 创建一个RequestQueue对象。
+
+                2. 创建一个ImageLoader对象。
+
+                3. 获取一个ImageListener对象。
+
+                4. 调用ImageLoader的get()方法加载网络上的图片。
                  */
-                Log.i("start","??????????");
-                ImageRequest ImageRequest = new ImageRequest(URL2,new Response.Listener<Bitmap>() {
+                ImageLoader imageLoader = new ImageLoader(mQueue, new ImageLoader.ImageCache() {
                     @Override
-                    public void onResponse(Bitmap response) {
-                        iv_main.setImageBitmap(response);
-                        Log.i("start","ok");
+                    public Bitmap getBitmap(String url) {
+                        return null;
                     }
-                },200,150, Bitmap.Config.RGB_565,new Response.ErrorListener() {
+
                     @Override
-                    public void onErrorResponse(VolleyError error) {
-                        iv_main.setImageResource(R.mipmap.ic_launcher);
-                        Log.i("start","false");
+                    public void putBitmap(String url, Bitmap bitmap) {
+
                     }
                 });
-                mQueue.add(ImageRequest);
+
+                ImageLoader.ImageListener imageListener = ImageLoader.getImageListener(iv_main,R.mipmap.ic_launcher,R.drawable.abc_textfield_search_material);
+
+                imageLoader.get(URL2,imageListener,200,150);
 
 
 
+
+
+
+
+
+
+
+//                /*第一个参数就是图片的URL地址，
+//                第二个参数是图片请求成功的回调，这里我们把返回的Bitmap参数设置到ImageView中。
+//                第三第四个参数分别用于指定允许图片最大的宽度和高度，如果指定的网络图片的宽度或高度大于这里的最大值，
+//                    则会对图片进行压缩，指定成0的话就表示不管图片有多大，都不会进行压缩。
+//                第五个参数用于指定图片的颜色属性，Bitmap.Config下的几个常量都可以在这里使用，
+//                    其中ARGB_8888可以展示最好的颜色属性，每个图片像素占据4个字节的大小，而RGB_565则表示每个图片像素占据2个字节大小。
+//                第六个参数是图片请求失败的回调，这里我们当请求失败时在ImageView中显示一张默认图片。
+//
+//                 */
+//
+//                ImageRequest ImageRequest = new ImageRequest(URL2,new Response.Listener<Bitmap>() {
+//                    @Override
+//                    public void onResponse(Bitmap response) {
+//                        iv_main.setImageBitmap(response);
+//                        Log.i("start","ok");
+//                    }
+//                },200,150, Bitmap.Config.RGB_565,new Response.ErrorListener() {
+//                    @Override
+//                    public void onErrorResponse(VolleyError error) {
+//                        iv_main.setImageResource(R.mipmap.ic_launcher);
+//                        Log.i("start","false");
+//                    }
+//                });
+//                mQueue.add(ImageRequest);
 
 
 //                JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(URL, null,
@@ -108,26 +144,58 @@ public class MainActivity extends ActionBarActivity {
 //                mQueue.add(stringRequest);
 
 
-
-
-
-
-
-
-
-
-
             }
         });
 
 
-
-
-
-
-
-
     }
+
+
+
+
+
+
+    /*
+    图片压缩范例
+     */
+
+//    iv_main.setImageBitmap(
+//    decodeSampledBitmapFromResource(getResources(), R.id.myimage, 100, 100));
+//
+//
+//    //计算压缩比例 inSampleSize
+//    public  static  int calculateInSampleSize(BitmapFactory.Options options,int reqWidth,int reqHeight){
+//        //源图片的宽高
+//        final int height = options.outHeight;
+//        final int width = options.outWidth;
+//        int inSampleSize  =1 ;
+//        if(height> reqHeight || width>reqWidth){
+//            // 计算出实际宽高和目标宽高的比率
+//            final int heightRatio = Math.round((float) height / (float) reqHeight);
+//            final int widthRatio = Math.round((float) width / (float) reqWidth);
+//            // 选择宽和高中最小的比率作为inSampleSize的值，这样可以保证最终图片的宽和高
+//            // 一定都会大于等于目标的宽和高。
+//            inSampleSize = heightRatio < widthRatio ? heightRatio : widthRatio;
+//        }
+//        return inSampleSize;
+//    }
+//
+//
+//
+//    //设置好options后进行压缩
+//    public static Bitmap decodeSampledBitmapFromResource(Resources res, int resId,
+//                                                         int reqWidth, int reqHeight) {
+//        // 第一次解析将inJustDecodeBounds设置为true，来获取图片大小
+//        final BitmapFactory.Options options = new BitmapFactory.Options();
+//        options.inJustDecodeBounds = true;
+//        BitmapFactory.decodeResource(res, resId, options);
+//        // 调用上面定义的方法计算inSampleSize值
+//        options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
+//        // 使用获取到的inSampleSize值再次解析图片
+//        options.inJustDecodeBounds = false;
+//        return BitmapFactory.decodeResource(res, resId, options);
+//    }
+
 
 
     @Override

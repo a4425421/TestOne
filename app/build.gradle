@@ -31,4 +31,5 @@ dependencies {
     compile 'com.android.support:appcompat-v7:21.+'
     //这里添加你的第三方类库
     compile project(':volley-master')
+    compile 'com.android.support:support-v4:21.0.3'
 }
