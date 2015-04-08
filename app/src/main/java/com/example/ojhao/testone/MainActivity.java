@@ -24,6 +24,7 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
         Button btn = (Button) findViewById(R.id.main_button);
         final ImageView iv_main =(ImageView)findViewById(R.id.iv_main);
         btn.setOnClickListener(new View.OnClickListener() {
